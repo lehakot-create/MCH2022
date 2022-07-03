@@ -320,16 +320,19 @@ class LastApiList(APIView):
         try:
             last = Profile.objects.get(user=request.user.id)
             find = last.last_request['find']
-
-            company = Company.objects.filter(
-                Q(Company__icontains=find) |
-                Q(Categories__icontains=find) |
-                Q(Products__icontains=find) |
-                Q(INN__icontains=find) |
-                Q(Region__icontains=find) |
-                Q(Locality__icontains=find) |
-                Q(Address__icontains=find)
-            )
+            if find.isdigit() and len(find) == 10:
+                company = Company.objects.filter(INN=find)
+            else:
+                company = Company.objects.filter(
+                    Q(Company__icontains=find) |
+                    Q(Direction__icontains=find) |
+                    Q(Description__icontains=find) |
+                    Q(Categories__icontains=find) |
+                    Q(Products__icontains=find) |
+                    Q(Region__icontains=find) |
+                    Q(Locality__icontains=find) |
+                    Q(Address__icontains=find)
+                )
             serializer = CompanySerializer(company, many=True)
             return Response(serializer.data)
         except Company.DoesNotExist or Profile.DoesNotExist:
