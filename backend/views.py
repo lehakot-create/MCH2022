@@ -236,7 +236,12 @@ class FavouriteListApiView(generics.ListAPIView):
             company = Company.objects.get(id=el.get('company'))
             data.append({
                 'id': el.get('company'),
-                'name': company.Company
+                'name': company.Company,
+                'direction': company.Direction,
+                'inn': company.INN,
+                'address': company.Address,
+                'url': company.URL,
+                'telephone': company.Telephone
             })
         serializer = NewNewFavouriteSerializer(data, many=True)
         return Response(serializer.data)
@@ -254,7 +259,13 @@ class FavouriteDetailApiView(APIView):
         if not Favourite.objects.filter(user=user, company=company).exists():
             try:
                 Favourite.objects.create(user=User.objects.get(id=request.user.id), company=company)
-                return Response({'id': company.id, 'name': company.Company})
+                return Response({'id': company.id,
+                                 'name': company.Company,
+                                 'direction': company.Direction,
+                                 'inn': company.INN,
+                                 'address': company.Address,
+                                 'url': company.URL,
+                                 'telephone': company.Telephone})
             except Company.DoesNotExist:
                 return JsonResponse({'error': 'Компания не найдена'})
         return JsonResponse({'error': 'Запись уже существует'})

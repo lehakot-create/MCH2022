@@ -33,6 +33,11 @@ class NewFavouriteSerializer(serializers.Serializer):
 class NewNewFavouriteSerializer(serializers.Serializer):
     id = serializers.IntegerField()
     name = serializers.CharField()
+    direction = serializers.CharField()
+    inn = serializers.CharField()
+    address = serializers.CharField()
+    url = serializers.CharField()
+    telephone = serializers.CharField()
 
 
 class CompanySerializer(serializers.ModelSerializer):
