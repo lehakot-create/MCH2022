@@ -1,23 +1,15 @@
 from django.contrib.auth.models import User
-from django.db.models import Q
+from django.core.cache import cache
+from django.db.models import Q, Count
 from django.http import Http404, JsonResponse
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.shortcuts import render, redirect
-from django.urls import reverse_lazy
-from django.views.generic import TemplateView, UpdateView, ListView, CreateView
 
 from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import Company, Product, Favourite, Profile, ProfileCompany
+from .models import Company, Product, Favourite, Profile
 from .serializers import *
-from .filters import CompanyFilter, ProductFilter
-from .forms import ManufacturerForm, ProductForm
-
-from .utils import remove_dublicate
 
 
 class RegionListApiView(generics.ListAPIView):
@@ -376,3 +368,72 @@ class QuantityApiList(APIView):
                         lst.append(el)
         lst_out = list(map(lambda x: {key: x}, lst))
         return lst_out
+
+
+class AnaliticsQuantityCompanyApiView(APIView):
+    """
+    Самые популярные категории - возвращает количество компаний в каждой категории
+    """
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            sorted_dct = cache.get('analitics_categories', None)
+            if not sorted_dct:
+                dct = {}
+                all_company = Company.objects.all()
+                for company in all_company:
+                    if company.Categories:
+                        for el in company.Categories:
+                            dct[el] = dct.get(el, 0) + 1
+                sorted_tuples = sorted(dct.items(), key=lambda item: item[1], reverse=True)[:20]
+                sorted_dct = {key: value for key, value in sorted_tuples}
+                cache.set('analitics_categories', sorted_dct)
+            return JsonResponse(sorted_dct)
+        except Company.DoesNotExist:
+            raise Http404
+
+
+class AnaliticsQuantityDirectionApiView(APIView):
+    """
+    Самые популярные направления(direction) - возвращает количество компаний по каждому направлению
+    """
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            sorted_dct = cache.get('analitics_directions', None)
+            if not sorted_dct:
+                dct = {}
+                all_direction = Company.objects.all()
+                for direction in all_direction:
+                    dct[direction.Direction] = dct.get(direction.Direction, 0) + 1
+                sorted_tuple = sorted(dct.items(), key=lambda item: item[1], reverse=True)[:20]
+                sorted_dct = {key: value for key, value in sorted_tuple}
+                cache.set('analitics_directions', sorted_dct)
+            return JsonResponse(sorted_dct)
+        except Company.DoesNotExist:
+            raise Http404
+
+
+class AnaliticsQuantityLocalityApiView(APIView):
+    """
+    Количество производителей по городам
+    """
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            sorted_dct = cache.get('analitics_locality', None)
+            if not sorted_dct:
+                dct = {}
+                all_locality = Company.objects.all()
+                for locality in all_locality:
+                    dct[locality.Locality] = dct.get(locality.Locality, 0) + 1
+                sorted_tuple = sorted(dct.items(), key=lambda item: item[1], reverse=True)[:20]
+                sorted_dct = {key: value for key, value in sorted_tuple}
+                cache.set('analitics_locality', sorted_dct)
+            return JsonResponse(sorted_dct)
+        except Company.DoesNotExist:
+            raise Http404
+
