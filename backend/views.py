@@ -316,16 +316,16 @@ class LastApiList(APIView):
     def get(self, request):
         try:
             last = Profile.objects.get(user=request.user.id)
-            data = last.last_request
+            find = last.last_request['find']
 
             company = Company.objects.filter(
-                Q(Company=data.get('company', None)) |
-                Q(Categories=data.get('categories', None)) |
-                Q(Products=data.get('products', None)) |
-                Q(INN=data.get('inn', None)) |
-                Q(Region=data.get('region', None)) |
-                Q(Locality=data.get('locality', None)) |
-                Q(Address=data.get('address', None))
+                Q(Company__icontains=find) |
+                Q(Categories__icontains=find) |
+                Q(Products__icontains=find) |
+                Q(INN__icontains=find) |
+                Q(Region__icontains=find) |
+                Q(Locality__icontains=find) |
+                Q(Address__icontains=find)
             )
             serializer = CompanySerializer(company, many=True)
             return Response(serializer.data)
