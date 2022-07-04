@@ -26,4 +26,7 @@ urlpatterns = [
     path('api/v1/last/', LastApiList.as_view()),
 
     path('api/v1/quantity/', QuantityApiList.as_view()),
+    path('api/v1/analitics/categories/', AnaliticsQuantityCompanyApiView.as_view()),
+    path('api/v1/analitics/directions/', AnaliticsQuantityDirectionApiView.as_view()),
+    path('api/v1/analitics/locality/', AnaliticsQuantityLocalityApiView.as_view()),
 ]
