@@ -100,7 +100,7 @@ class CategoriesListApiView(generics.ListAPIView):
     """
     queryset = Company.objects.values('Categories').distinct('Categories')
     serializer_class = CategoriesSerializer
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
     def list(self, request):
         categories_raw = self.get_queryset()
@@ -377,7 +377,7 @@ class AnaliticsQuantityCompanyApiView(APIView):
     """
     Самые популярные категории - возвращает количество компаний в каждой категории
     """
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
         try:
