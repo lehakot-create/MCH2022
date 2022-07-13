@@ -345,7 +345,7 @@ class QuantityApiList(APIView):
     """
     Возвращает количество компаний и продуктов в БД
     """
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
     def get(self, request):
         try:
@@ -377,7 +377,7 @@ class AnaliticsQuantityCompanyApiView(APIView):
     """
     Самые популярные категории - возвращает количество компаний в каждой категории
     """
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
     def get(self, request):
         try:
@@ -389,7 +389,7 @@ class AnaliticsQuantityCompanyApiView(APIView):
                     if company.Categories:
                         for el in company.Categories:
                             dct[el] = dct.get(el, 0) + 1
-                sorted_tuples = sorted(dct.items(), key=lambda item: item[1], reverse=True)[:20]
+                sorted_tuples = sorted(dct.items(), key=lambda item: item[1], reverse=True)[:10]
                 sorted_dct = {key: value for key, value in sorted_tuples}
                 cache.set('analitics_categories', sorted_dct)
             return JsonResponse(sorted_dct)

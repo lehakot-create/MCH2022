@@ -58,6 +58,7 @@ class Company(models.Model):
     Facebook = models.CharField(max_length=128, null=True, blank=True)
     Youtube = models.CharField(max_length=128, null=True, blank=True)
     Catalogs = ArrayField(models.CharField(max_length=128, null=True, blank=True), blank=True, verbose_name='Каталоги', null=True)
+    # coords = models.DecimalField(max_digits=9, decimal_places=6, null=True)
 
     def get_absolute_url(self):
         return f'/manufacturer_lk/{self.INN}/'

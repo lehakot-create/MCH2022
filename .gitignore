@@ -4,3 +4,4 @@ __pycache__/
 .env
 
 Cache_files/*
+tmp.py
