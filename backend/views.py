@@ -208,37 +208,6 @@ class ApiIdDetailApiView(APIView):
         return Response(serializer.data)
 
 
-# class FavouriteListApiView(generics.ListAPIView):
-#     """
-#     Возвращает все избранные компании данного юзера
-#     """
-#     permission_classes = [IsAuthenticated]
-#     serializer_class = FavouriteSerializer
-#
-#     def get_queryset(self, request):
-#         try:
-#             return Favourite.objects.filter(user=request.user.id)
-#         except Favourite.DoesNotExist:
-#             raise Http404
-#
-#     def list(self, request):
-#         favourite_company = self.get_queryset(self.request)
-#         data = []
-#         for el in favourite_company.values('company'):
-#             company = Company.objects.get(id=el.get('company'))
-#             data.append({
-#                 'id': el.get('company'),
-#                 'name': company.Company,
-#                 'direction': company.Direction,
-#                 'inn': company.INN,
-#                 'address': company.Address,
-#                 'url': company.URL,
-#                 'telephone': company.Telephone
-#             })
-#         serializer = NewNewFavouriteSerializer(data, many=True)
-#         return Response(serializer.data)
-
-
 class FavouriteDetailApiView(APIView):
     permission_classes = [IsAuthenticated]
     serializer_class = FavouriteSerializer
@@ -296,7 +265,6 @@ class FavouriteDetailApiView(APIView):
                 company = Company.objects.get(id=_id)
                 favourite_company = Favourite.objects.get(user=user, company=company)
                 favourite_company.delete()
-                # return JsonResponse({'detail': 'Компания удалена из избранных'})
             except Favourite.DoesNotExist:
                 return JsonResponse({'error': 'Компания не найдена'})
         return JsonResponse({'detail': 'ok'})
