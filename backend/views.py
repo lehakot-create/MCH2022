@@ -208,21 +208,44 @@ class ApiIdDetailApiView(APIView):
         return Response(serializer.data)
 
 
-class FavouriteListApiView(generics.ListAPIView):
-    """
-    Возвращает все избранные компании данного юзера
-    """
+# class FavouriteListApiView(generics.ListAPIView):
+#     """
+#     Возвращает все избранные компании данного юзера
+#     """
+#     permission_classes = [IsAuthenticated]
+#     serializer_class = FavouriteSerializer
+#
+#     def get_queryset(self, request):
+#         try:
+#             return Favourite.objects.filter(user=request.user.id)
+#         except Favourite.DoesNotExist:
+#             raise Http404
+#
+#     def list(self, request):
+#         favourite_company = self.get_queryset(self.request)
+#         data = []
+#         for el in favourite_company.values('company'):
+#             company = Company.objects.get(id=el.get('company'))
+#             data.append({
+#                 'id': el.get('company'),
+#                 'name': company.Company,
+#                 'direction': company.Direction,
+#                 'inn': company.INN,
+#                 'address': company.Address,
+#                 'url': company.URL,
+#                 'telephone': company.Telephone
+#             })
+#         serializer = NewNewFavouriteSerializer(data, many=True)
+#         return Response(serializer.data)
+
+
+class FavouriteDetailApiView(APIView):
     permission_classes = [IsAuthenticated]
     serializer_class = FavouriteSerializer
 
-    def get_queryset(self, request):
-        try:
-            return Favourite.objects.filter(user=request.user.id)
-        except Favourite.DoesNotExist:
-            raise Http404
-
-    def list(self, request):
-        favourite_company = self.get_queryset(self.request)
+    def get(self,request):
+        user = User.objects.get(id=request.user.id)
+        favourite_company = Favourite.objects.filter(user=user)
         data = []
         for el in favourite_company.values('company'):
             company = Company.objects.get(id=el.get('company'))
@@ -234,45 +257,49 @@ class FavouriteListApiView(generics.ListAPIView):
                 'address': company.Address,
                 'url': company.URL,
                 'telephone': company.Telephone
-            })
+                })
         serializer = NewNewFavouriteSerializer(data, many=True)
         return Response(serializer.data)
 
-
-class FavouriteDetailApiView(APIView):
-    permission_classes = [IsAuthenticated]
-
     def post(self, request, format=None, **kwargs):
         """
-        Добавляет компанию в избранное юзера
+        Добавляет компанию в избранное пользователя
         """
-        company = Company.objects.get(id=kwargs.get('pk'))
+        try:
+            data = request.data['favourite']
+        except KeyError:
+            return JsonResponse({'error': 'неверно указан ключ. Необходим ключ favourite'})
+
         user = User.objects.get(id=request.user.id)
-        if not Favourite.objects.filter(user=user, company=company).exists():
+        for _id in data:
             try:
-                Favourite.objects.create(user=User.objects.get(id=request.user.id), company=company)
-                return Response({'id': company.id,
-                                 'name': company.Company,
-                                 'direction': company.Direction,
-                                 'inn': company.INN,
-                                 'address': company.Address,
-                                 'url': company.URL,
-                                 'telephone': company.Telephone})
+                company = Company.objects.get(id=_id)
             except Company.DoesNotExist:
-                return JsonResponse({'error': 'Компания не найдена'})
-        return JsonResponse({'error': 'Запись уже существует'})
+                JsonResponse({'error': 'неверный id'})
+
+            if not Favourite.objects.filter(user=user, company=company).exists():
+                Favourite.objects.create(user=User.objects.get(id=request.user.id), company=company)
+        return JsonResponse({'detail': 'ok'})
 
     def delete(self, request, **kwargs):
         """
         Удаляет компанию из избранных юзера
         """
         try:
-            favourite_company = Favourite.objects.get(user=User.objects.get(id=request.user.id),
-                                                      company=kwargs.get('pk'))
-            favourite_company.delete()
-            return JsonResponse({'detail': 'Компания удалена из избранных'})
-        except Favourite.DoesNotExist:
-            return JsonResponse({'error': 'Компания не найдена'})
+            data = request.data['favourite']
+        except KeyError:
+            return JsonResponse({'error': 'неверно указан ключ. Необходим ключ favourite'})
+
+        user = User.objects.get(id=request.user.id)
+        for _id in data:
+            try:
+                company = Company.objects.get(id=_id)
+                favourite_company = Favourite.objects.get(user=user, company=company)
+                favourite_company.delete()
+                # return JsonResponse({'detail': 'Компания удалена из избранных'})
+            except Favourite.DoesNotExist:
+                return JsonResponse({'error': 'Компания не найдена'})
+        return JsonResponse({'detail': 'ok'})
 
 
 class FindApiList(APIView):
@@ -389,7 +416,7 @@ class AnaliticsQuantityCompanyApiView(APIView):
                     if company.Categories:
                         for el in company.Categories:
                             dct[el] = dct.get(el, 0) + 1
-                sorted_tuples = sorted(dct.items(), key=lambda item: item[1], reverse=True)[:10]
+                sorted_tuples = sorted(dct.items(), key=lambda item: item[1], reverse=True)[:20]
                 sorted_dct = {key: value for key, value in sorted_tuples}
                 cache.set('analitics_categories', sorted_dct)
             return JsonResponse(sorted_dct)

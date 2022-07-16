@@ -21,7 +21,7 @@ class ProductsSerializer(serializers.Serializer):
 class FavouriteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Favourite
-        fields = ('company',)
+        fields = ('id',)
 
 
 class NewFavouriteSerializer(serializers.Serializer):

@@ -19,8 +19,9 @@ urlpatterns = [
 
     path('api/v1/api_id/<int:id>/', ApiIdDetailApiView.as_view()),
 
-    path('api/v1/favourite/', FavouriteListApiView.as_view()),
-    path('api/v1/favourite/<int:pk>/', FavouriteDetailApiView.as_view()),
+    # path('api/v1/favourite/', FavouriteListApiView.as_view()),
+    # path('api/v1/favourite/<int:pk>/', FavouriteDetailApiView.as_view()),
+    path('api/v1/favourite/', FavouriteDetailApiView.as_view()),
 
     path('api/v1/find/', FindApiList.as_view()),
     path('api/v1/last/', LastApiList.as_view()),
