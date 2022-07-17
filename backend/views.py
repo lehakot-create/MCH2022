@@ -212,7 +212,7 @@ class FavouriteDetailApiView(APIView):
     permission_classes = [IsAuthenticated]
     serializer_class = FavouriteSerializer
 
-    def get(self,request):
+    def get(self, request):
         user = User.objects.get(id=request.user.id)
         favourite_company = Favourite.objects.filter(user=user)
         data = []
@@ -330,8 +330,10 @@ class LastApiList(APIView):
                 )
             serializer = CompanySerializer(company, many=True)
             return Response(serializer.data)
-        except Company.DoesNotExist or Profile.DoesNotExist:
-            raise Http404
+        except Company.DoesNotExist:
+            return JsonResponse({'error': 'ошибка компаний'})
+        except Profile.DoesNotExist:
+            return JsonResponse({'error': 'нет последних запросов'})
         except AttributeError:
             return Response({'error': 'Последних запросов нет'}, status=status.HTTP_400_BAD_REQUEST)
 
