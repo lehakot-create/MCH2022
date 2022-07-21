@@ -16,6 +16,8 @@ import os
 import dj_database_url
 import rest_framework.authentication
 
+from django.utils.translation import gettext_lazy as _
+
 env = environ.Env(
     # set casting, default value
     DEBUG=(bool, False)
@@ -108,7 +110,7 @@ DATABASES = {
         "ENGINE": "django.db.backends.postgresql_psycopg2",
         "NAME": "dbname",
         "USER": "postgres",
-        "PASSWORD": "admin",
+        "PASSWORD": "postgres",
         "HOST": "localhost",
         "PORT": "5432",
     },
@@ -214,3 +216,9 @@ CACHES = {
         'LOCATION': os.path.join(BASE_DIR, 'Cache_files'),
     }
 }
+
+COMMENT_FLAGS_ALLOWED = 1
+COMMENT_FLAG_REASONS = [
+    (1, _('Отклонено')),
+    (2, _('Исправить')),
+]

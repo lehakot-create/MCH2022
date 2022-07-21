@@ -1,6 +1,12 @@
-from django.urls import path
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
 from .views import *
 
+router = DefaultRouter()
+router.register('moderate/companies', CompaniesAdminViewSet, basename='moderate-companies')
+router.register('moderate/companies/<int:pk>', CompaniesAdminViewSet, basename='moderate-company')
+router.register('companies', CompaniesUserViewSet, basename='companies')
+router.register('profile/companies', CompaniesManufacturerViewSet, basename='manufacturer-companies')
 
 urlpatterns = [
     path('api/v1/regions/', RegionListApiView.as_view()),
@@ -29,4 +35,6 @@ urlpatterns = [
     path('api/v1/analitics/categories/', AnaliticsQuantityCompanyApiView.as_view()),
     path('api/v1/analitics/directions/', AnaliticsQuantityDirectionApiView.as_view()),
     path('api/v1/analitics/locality/', AnaliticsQuantityLocalityApiView.as_view()),
+
+    path('api/v1/', include(router.urls)),
 ]
