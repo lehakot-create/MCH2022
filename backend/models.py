@@ -38,17 +38,6 @@ class ProfileCompany(models.Model):
 
 
 class Company(models.Model):
-    # accept_moderation = 'AM'
-    # reject_moderation = 'RM'
-    # pending_moderation = 'PM'
-    # no_moderation = 'NM'
-    # choice = [
-    #     (accept_moderation, 'Прошла модерацию'),
-    #     (reject_moderation, 'Отклонена модератором'),
-    #     (pending_moderation, 'На модерации'),
-    #     (no_moderation, 'Не проверена'),
-    # ]
-
     user = models.ForeignKey(Profile, verbose_name="user", related_name="companies", on_delete=models.CASCADE)
     id_company = models.IntegerField(blank=False, unique=True)
     Company = models.CharField(max_length=128, verbose_name='Название компании')
@@ -73,7 +62,6 @@ class Company(models.Model):
     Facebook = models.CharField(max_length=128, null=True, blank=True)
     Youtube = models.CharField(max_length=128, null=True, blank=True)
     Catalogs = ArrayField(models.CharField(max_length=128, null=True, blank=True), blank=True, verbose_name='Каталоги', null=True)
-    # moderation = models.CharField(max_length=2, choices=choice, default=no_moderation, verbose_name='Статус модерации')
     is_moderate = models.BooleanField(default=False)
     status_moderation = models.BooleanField(null=True, blank=True)
     comment = models.CharField(max_length=250, null=True, blank=True, verbose_name='Комментарий модератора')

@@ -26,7 +26,7 @@ env = environ.Env(
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 # BASE_DIR = Path(__file__).resolve().parent.parent
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-environ.Env.read_env(os.path.join(BASE_DIR, '.envexample'))
+environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
 
 # Quick-start development settings - unsuitable for production
@@ -216,9 +216,3 @@ CACHES = {
         'LOCATION': os.path.join(BASE_DIR, 'Cache_files'),
     }
 }
-
-COMMENT_FLAGS_ALLOWED = 1
-COMMENT_FLAG_REASONS = [
-    (1, _('Отклонено')),
-    (2, _('Исправить')),
-]
