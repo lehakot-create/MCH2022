@@ -3,8 +3,8 @@ from django.core.cache import cache
 from django.db.models import Q, Count
 from django.http import Http404, JsonResponse
 
-from rest_framework import generics, status
-from rest_framework.permissions import IsAuthenticated
+from rest_framework import generics, status, viewsets
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -437,3 +437,37 @@ class AnaliticsQuantityLocalityApiView(APIView):
         except Company.DoesNotExist:
             raise Http404
 
+
+class CompaniesAdminViewSet(viewsets.ModelViewSet):
+    '''
+    Список компаний для модератора
+    '''
+
+    serializer_class = CompanySerializer
+    permission_classes = [IsAdminUser]
+
+    def get_queryset(self):
+        return Company.objects.filter(status_moderation=True)
+
+
+class CompaniesUserViewSet(viewsets.ReadOnlyModelViewSet):
+    '''
+    Список компаний для всех
+    '''
+
+    serializer_class = CompanySerializer
+
+    def get_queryset(self):
+        return Company.objects.filter(is_moderate=True)
+
+
+class CompaniesManufacturerViewSet(viewsets.ModelViewSet):
+    '''
+    Список компаний для их владельца
+    '''
+
+    serializer_class = CompanySerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Company.objects.filter(is_moderate=False, user=self.request.user.id)

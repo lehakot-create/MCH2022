@@ -28,6 +28,9 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     last_request = models.JSONField(null=True)
 
+    def __str__(self):
+        return f'{self.user}'
+
 
 class ProfileCompany(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -35,7 +38,8 @@ class ProfileCompany(models.Model):
 
 
 class Company(models.Model):
-    id_company = models.IntegerField(null=True, unique=True)
+    user = models.ForeignKey(Profile, verbose_name="user", related_name="companies", on_delete=models.CASCADE)
+    id_company = models.IntegerField(blank=False, unique=True)
     Company = models.CharField(max_length=128, verbose_name='Название компании')
     Direction = models.CharField(max_length=512, blank=True, verbose_name='Направление деятельности')
     Description = models.TextField(null=True, blank=True, verbose_name='Описание')
@@ -58,8 +62,16 @@ class Company(models.Model):
     Facebook = models.CharField(max_length=128, null=True, blank=True)
     Youtube = models.CharField(max_length=128, null=True, blank=True)
     Catalogs = ArrayField(models.CharField(max_length=128, null=True, blank=True), blank=True, verbose_name='Каталоги', null=True)
+
     latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True)
     longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True)
+
+    is_moderate = models.BooleanField(default=False)
+    status_moderation = models.BooleanField(null=True, blank=True)
+    comment = models.CharField(max_length=250, null=True, blank=True, verbose_name='Комментарий модератора')
+
+    def __str__(self):
+        return f'{self.Company}({self.INN})'
 
     def get_absolute_url(self):
         return f'/manufacturer_lk/{self.INN}/'

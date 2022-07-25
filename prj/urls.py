@@ -27,7 +27,6 @@ urlpatterns = [
     re_path(r'^auth/', include('djoser.urls.authtoken')),
 
 
-
     # API documentation
     path('swagger-ui/', TemplateView.as_view(
         template_name='swagger-ui.html',
