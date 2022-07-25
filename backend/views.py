@@ -100,7 +100,7 @@ class CategoriesListApiView(generics.ListAPIView):
     """
     queryset = Company.objects.values('Categories').distinct('Categories')
     serializer_class = CategoriesSerializer
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
     def list(self, request):
         categories_raw = self.get_queryset()
@@ -208,21 +208,13 @@ class ApiIdDetailApiView(APIView):
         return Response(serializer.data)
 
 
-class FavouriteListApiView(generics.ListAPIView):
-    """
-    Возвращает все избранные компании данного юзера
-    """
+class FavouriteDetailApiView(APIView):
     permission_classes = [IsAuthenticated]
     serializer_class = FavouriteSerializer
 
-    def get_queryset(self, request):
-        try:
-            return Favourite.objects.filter(user=request.user.id)
-        except Favourite.DoesNotExist:
-            raise Http404
-
-    def list(self, request):
-        favourite_company = self.get_queryset(self.request)
+    def get(self, request):
+        user = User.objects.get(id=request.user.id)
+        favourite_company = Favourite.objects.filter(user=user)
         data = []
         for el in favourite_company.values('company'):
             company = Company.objects.get(id=el.get('company'))
@@ -234,45 +226,48 @@ class FavouriteListApiView(generics.ListAPIView):
                 'address': company.Address,
                 'url': company.URL,
                 'telephone': company.Telephone
-            })
+                })
         serializer = NewNewFavouriteSerializer(data, many=True)
         return Response(serializer.data)
 
-
-class FavouriteDetailApiView(APIView):
-    permission_classes = [IsAuthenticated]
-
     def post(self, request, format=None, **kwargs):
         """
-        Добавляет компанию в избранное юзера
+        Добавляет компанию в избранное пользователя
         """
-        company = Company.objects.get(id=kwargs.get('pk'))
+        try:
+            data = request.data['favourite']
+        except KeyError:
+            return JsonResponse({'error': 'неверно указан ключ. Необходим ключ favourite'})
+
         user = User.objects.get(id=request.user.id)
-        if not Favourite.objects.filter(user=user, company=company).exists():
+        for _id in data:
             try:
-                Favourite.objects.create(user=User.objects.get(id=request.user.id), company=company)
-                return Response({'id': company.id,
-                                 'name': company.Company,
-                                 'direction': company.Direction,
-                                 'inn': company.INN,
-                                 'address': company.Address,
-                                 'url': company.URL,
-                                 'telephone': company.Telephone})
+                company = Company.objects.get(id=_id)
             except Company.DoesNotExist:
-                return JsonResponse({'error': 'Компания не найдена'})
-        return JsonResponse({'error': 'Запись уже существует'})
+                JsonResponse({'error': 'неверный id'})
+
+            if not Favourite.objects.filter(user=user, company=company).exists():
+                Favourite.objects.create(user=User.objects.get(id=request.user.id), company=company)
+        return JsonResponse({'detail': 'ok'})
 
     def delete(self, request, **kwargs):
         """
         Удаляет компанию из избранных юзера
         """
         try:
-            favourite_company = Favourite.objects.get(user=User.objects.get(id=request.user.id),
-                                                      company=kwargs.get('pk'))
-            favourite_company.delete()
-            return JsonResponse({'detail': 'Компания удалена из избранных'})
-        except Favourite.DoesNotExist:
-            return JsonResponse({'error': 'Компания не найдена'})
+            data = request.data['favourite']
+        except KeyError:
+            return JsonResponse({'error': 'неверно указан ключ. Необходим ключ favourite'})
+
+        user = User.objects.get(id=request.user.id)
+        for _id in data:
+            try:
+                company = Company.objects.get(id=_id)
+                favourite_company = Favourite.objects.get(user=user, company=company)
+                favourite_company.delete()
+            except Favourite.DoesNotExist:
+                return JsonResponse({'error': 'Компания не найдена'})
+        return JsonResponse({'detail': 'ok'})
 
 
 class FindApiList(APIView):
@@ -335,8 +330,10 @@ class LastApiList(APIView):
                 )
             serializer = CompanySerializer(company, many=True)
             return Response(serializer.data)
-        except Company.DoesNotExist or Profile.DoesNotExist:
-            raise Http404
+        except Company.DoesNotExist:
+            return JsonResponse({'error': 'ошибка компаний'})
+        except Profile.DoesNotExist:
+            return JsonResponse({'error': 'нет последних запросов'})
         except AttributeError:
             return Response({'error': 'Последних запросов нет'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -345,7 +342,7 @@ class QuantityApiList(APIView):
     """
     Возвращает количество компаний и продуктов в БД
     """
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
     def get(self, request):
         try:

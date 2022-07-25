@@ -62,6 +62,10 @@ class Company(models.Model):
     Facebook = models.CharField(max_length=128, null=True, blank=True)
     Youtube = models.CharField(max_length=128, null=True, blank=True)
     Catalogs = ArrayField(models.CharField(max_length=128, null=True, blank=True), blank=True, verbose_name='Каталоги', null=True)
+
+    latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True)
+    longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True)
+
     is_moderate = models.BooleanField(default=False)
     status_moderation = models.BooleanField(null=True, blank=True)
     comment = models.CharField(max_length=250, null=True, blank=True, verbose_name='Комментарий модератора')
