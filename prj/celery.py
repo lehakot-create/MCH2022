@@ -1,7 +1,6 @@
 import os
 from celery import Celery
 from celery.schedules import crontab
-# from backend.utils import day_of_month
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'prj.settings')
 
