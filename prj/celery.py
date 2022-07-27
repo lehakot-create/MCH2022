@@ -1,6 +1,7 @@
 import os
 from celery import Celery
 from celery.schedules import crontab
+# from backend.utils import day_of_month
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'prj.settings')
 
@@ -10,8 +11,13 @@ app.config_from_object('django.conf:settings', namespace='CELERY')
 app.conf.beat_schedule = {
     'parse_every_weekend': {
         'task': 'backend.tasks.parser_msk',
-        'schedule': crontab(hour=8, minute=0, day_of_week='sunday'),
+        'schedule': crontab(minute=0, hour='1', day_of_week='sat'),
     },
 }
 
 app.autodiscover_tasks()
+
+
+@app.task(bind=True)
+def debug_task(self):
+    print(f'Request: {self.request!r}')

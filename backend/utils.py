@@ -14,4 +14,3 @@ def remove_dublicate(key, queryset):
                     lst.append(el)
     lst_out = list(map(lambda x: {key: x}, lst))
     return lst_out
-
