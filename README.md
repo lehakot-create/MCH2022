@@ -95,3 +95,8 @@ email=mail@mail.ru
 - пример логин на сайт - POST на http://127.0.0.1:8000/api/v1/auth/token/login/ username=user, password=password
 - - получаем значение токена "auth_token": "l3wg423l42345h235l2354hh2453l5" <- токен взят рандомный для примера
 - в запросах GET/POST/... где требуется аутентификация писать (ПРИМЕР) - "Token l3wg423l42345h235l2354hh2453l5"
+
+
+
+###Запустить Redis в Docker-контейнере
+docker run -p 6379:6379 --name some-redis -d redis

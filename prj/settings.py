@@ -100,22 +100,22 @@ WSGI_APPLICATION = 'prj.wsgi.application'
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
 DATABASES = {
-    # 'default': {
-    #     "ENGINE": os.environ.get("SQL_ENGINE", "django.db.backends.postgresql_psycopg2"),
-    #     "NAME": os.environ.get("SQL_DATABASE", "dbname"),
-    #     "USER": os.environ.get("SQL_USER", "postgres"),
-    #     "PASSWORD": os.environ.get("SQL_PASSWORD", "admin"),
-    #     "HOST": os.environ.get("SQL_HOST", "localhost"),
-    #     "PORT": os.environ.get("SQL_PORT", "5432"),
-    # },
     'default': {
-        "ENGINE": "django.db.backends.postgresql_psycopg2",
-        "NAME": "dbname",
-        "USER": "postgres",
-        "PASSWORD": "postgres",
-        "HOST": "localhost",
-        "PORT": "5432",
+        "ENGINE": os.environ.get("SQL_ENGINE", "django.db.backends.postgresql_psycopg2"),
+        "NAME": os.environ.get("SQL_DATABASE", "dbname"),
+        "USER": os.environ.get("SQL_USER", "postgres"),
+        "PASSWORD": os.environ.get("SQL_PASSWORD", "admin"),
+        "HOST": os.environ.get("SQL_HOST", "localhost"),
+        "PORT": os.environ.get("SQL_PORT", "5432"),
     },
+    # 'default': {
+    #     "ENGINE": "django.db.backends.postgresql_psycopg2",
+    #     "NAME": "dbname",
+    #     "USER": "postgres",
+    #     "PASSWORD": "postgres",
+    #     "HOST": "localhost",
+    #     "PORT": "5432",
+    # },
 }
 
 
@@ -179,6 +179,7 @@ ALLOWED_HOSTS = [
     "http://localhost:3000",
     "127.0.0.1",
     "msh777.herokuapp.com",
+    '0.0.0.0'
 ]
 
 CORS_ALLOWED_ORIGINS = [
@@ -205,8 +206,8 @@ ACCOUNT_EMAIL_REQUIRED = False
 ACCOUNT_USERNAME_REQUIRED = True
 
 
-CELERY_BROKER_URL = 'redis://localhost:6379'
-CELERY_RESULT_BACKEND = 'redis://localhost:6379'
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
