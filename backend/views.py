@@ -7,9 +7,11 @@ from rest_framework import generics, status, viewsets
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.decorators import api_view
 
 from .models import Company, Product, Favourite, Profile
 from .serializers import *
+# from .utils import day_of_month
 
 
 class RegionListApiView(generics.ListAPIView):
@@ -471,3 +473,12 @@ class CompaniesManufacturerViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return Company.objects.filter(is_moderate=False, user=self.request.user.id)
+
+
+# @api_view(['GET', 'POST'])
+# def set_parser_days(request, day_number):
+#     try:
+#         if 0 < day_number < 32:
+#             return Response(day_number, status=status.HTTP_200_OK)
+#     except:
+#         raise ValueError

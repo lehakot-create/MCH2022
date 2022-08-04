@@ -7,6 +7,7 @@ router.register('moderate/companies', CompaniesAdminViewSet, basename='moderate-
 router.register('moderate/companies/<int:pk>', CompaniesAdminViewSet, basename='moderate-company')
 router.register('companies', CompaniesUserViewSet, basename='companies')
 router.register('profile/companies', CompaniesManufacturerViewSet, basename='manufacturer-companies')
+# router.register('moderate/set_parser', set_parser_days)
 
 urlpatterns = [
     path('api/v1/regions/', RegionListApiView.as_view()),
