@@ -37,4 +37,7 @@ urlpatterns = [
     path('api/v1/analitics/locality/', AnaliticsQuantityLocalityApiView.as_view()),
 
     path('api/v1/', include(router.urls)),
+
+    path('api/v1/profiles/', ProfileListCreateView.as_view()),
+    path('api/v1/profile/<int:pk>/', ProfileDetailView.as_view()),
 ]

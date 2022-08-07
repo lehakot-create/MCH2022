@@ -1,17 +1,15 @@
 from django.contrib.auth.models import User
 from django.core.cache import cache
-from django.db.models import Q, Count
+from django.db.models import Q
 from django.http import Http404, JsonResponse
 
 from rest_framework import generics, status, viewsets
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.decorators import api_view
 
-from .models import Company, Product, Favourite, Profile
+from .license import IsOwnerProfileOrReadOnly
 from .serializers import *
-# from .utils import day_of_month
 
 
 class RegionListApiView(generics.ListAPIView):
@@ -475,10 +473,17 @@ class CompaniesManufacturerViewSet(viewsets.ModelViewSet):
         return Company.objects.filter(is_moderate=False, user=self.request.user.id)
 
 
-# @api_view(['GET', 'POST'])
-# def set_parser_days(request, day_number):
-#     try:
-#         if 0 < day_number < 32:
-#             return Response(day_number, status=status.HTTP_200_OK)
-#     except:
-#         raise ValueError
+class ProfileListCreateView(generics.ListCreateAPIView):
+    queryset = Profile.objects.all()
+    serializer_class = ProfileSerializer
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        user = self.request.user
+        serializer.save(user=user)
+
+
+class ProfileDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Profile.objects.all()
+    serializer_class = ProfileSerializer
+    permission_classes = [IsOwnerProfileOrReadOnly, IsAuthenticated]

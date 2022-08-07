@@ -24,7 +24,7 @@ class Profile(models.Model):
         (user, 'Пользователь'),
         (manufacturer, 'Производитель'),
     ]
-    user_company = models.CharField(max_length=2, choices=choice)
+    role = models.CharField(max_length=2, choices=choice, default=user)
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     last_request = models.JSONField(null=True)
 
@@ -38,7 +38,7 @@ class ProfileCompany(models.Model):
 
 
 class Company(models.Model):
-    user = models.ForeignKey(Profile, verbose_name="user", related_name="companies", on_delete=models.CASCADE)
+    user = models.ForeignKey(Profile, verbose_name="user", related_name="companies", on_delete=models.CASCADE, null=True)
     id_company = models.IntegerField(blank=False, unique=True)
     Company = models.CharField(max_length=128, verbose_name='Название компании')
     Direction = models.CharField(max_length=512, blank=True, verbose_name='Направление деятельности')
@@ -72,9 +72,6 @@ class Company(models.Model):
 
     def __str__(self):
         return f'{self.Company}({self.INN})'
-
-    def get_absolute_url(self):
-        return f'/manufacturer_lk/{self.INN}/'
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)

@@ -5,3 +5,4 @@ __pycache__/
 
 Cache_files/*
 
+backend/migrations/*
