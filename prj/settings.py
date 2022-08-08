@@ -102,17 +102,10 @@ DATABASES = {
         "NAME": os.environ.get("SQL_DATABASE", "dbname"),
         "USER": os.environ.get("SQL_USER", "postgres"),
         "PASSWORD": os.environ.get("SQL_PASSWORD", "admin"),
-        "HOST": os.environ.get("SQL_HOST", "localhost"),
-        "PORT": os.environ.get("SQL_PORT", "5432"),
+        "HOST": "0.0.0.0",
+        # "HOST": env("SQL_HOST"),
+        "PORT": os.environ.get("SQL_PORT"),
     },
-    # 'default': {
-    #     "ENGINE": "django.db.backends.postgresql_psycopg2",
-    #     "NAME": "dbname",
-    #     "USER": "postgres",
-    #     "PASSWORD": "postgres",
-    #     "HOST": "0.0.0.0",
-    #     "PORT": "5432",
-    # },
 }
 
 # Password validation
