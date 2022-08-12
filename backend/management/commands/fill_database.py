@@ -11,10 +11,13 @@ class Command(BaseCommand):
     help = 'Эта команда заполняет базу данных'
 
     def add_arguments(self, parser):
-        parser.add_argument('-f', '--filename', type=str, help='Название файла')
+        parser.add_argument('-f', '--filename',
+                            type=str, help='Название файла')
 
     def handle(self, *args, **kwargs):
-        with open(os.path.join(BASE_DIR, f'parser/{kwargs["filename"]}.json'), encoding="utf-8") as f:
+        with open(os.path.join(BASE_DIR,
+                               f'parser/{kwargs["filename"]}.json'),
+                  encoding="utf-8") as f:
             data = json.loads(f.read())
             for el in data:
                 try:
@@ -46,4 +49,5 @@ class Command(BaseCommand):
                     print(f'Сделана запись: {el.get("id_company")}')
                 except BaseException as e:
                     print(f'{el.get("id_company")} - error - {e}')
-            self.stdout.write(self.style.SUCCESS('Данные успешно записаны в базу данных'))
+            self.stdout.write(
+                self.style.SUCCESS('Данные успешно записаны в базу данных'))

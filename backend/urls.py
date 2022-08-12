@@ -1,13 +1,29 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
-from .views import *
+from .views import RunTask, AnaliticsQuantityLocalityApiView, \
+    CompaniesAdminViewSet, CompaniesUserViewSet, \
+    CompaniesManufacturerViewSet, RegionListApiView, \
+    RegionDetailApiView, LocalityListApiView, \
+    LocalityDetailApiView, InnDetailApiView, \
+    CategoriesListApiView, ProductDetailApiView, \
+    CategoriesDetailApiView, ProductListApiView, \
+    ApiIdDetailApiView, FavouriteDetailApiView, \
+    FindApiList, LastApiList, \
+    QuantityApiList, AnaliticsQuantityCompanyApiView, \
+    AnaliticsQuantityDirectionApiView
+
 
 router = DefaultRouter()
-router.register('moderate/companies', CompaniesAdminViewSet, basename='moderate-companies')
-router.register('moderate/companies/<int:pk>', CompaniesAdminViewSet, basename='moderate-company')
-router.register('companies', CompaniesUserViewSet, basename='companies')
-router.register('profile/companies', CompaniesManufacturerViewSet, basename='manufacturer-companies')
+router.register('moderate/companies',
+                CompaniesAdminViewSet, basename='moderate-companies')
+router.register('moderate/companies/<int:pk>',
+                CompaniesAdminViewSet, basename='moderate-company')
+router.register('companies',
+                CompaniesUserViewSet, basename='companies')
+router.register('profile/companies',
+                CompaniesManufacturerViewSet,
+                basename='manufacturer-companies')
 # router.register('moderate/set_parser', set_parser_days)
 
 urlpatterns = [
@@ -33,12 +49,15 @@ urlpatterns = [
     path('api/v1/last/', LastApiList.as_view()),
 
     path('api/v1/quantity/', QuantityApiList.as_view()),
-    path('api/v1/analitics/categories/', AnaliticsQuantityCompanyApiView.as_view()),
-    path('api/v1/analitics/directions/', AnaliticsQuantityDirectionApiView.as_view()),
-    path('api/v1/analitics/locality/', AnaliticsQuantityLocalityApiView.as_view()),
+    path('api/v1/analitics/categories/',
+         AnaliticsQuantityCompanyApiView.as_view()),
+    path('api/v1/analitics/directions/',
+         AnaliticsQuantityDirectionApiView.as_view()),
+    path('api/v1/analitics/locality/',
+         AnaliticsQuantityLocalityApiView.as_view()),
 
     path('api/v1/', include(router.urls)),
 
-    #URL for run tasks
+    # URL for run tasks
     path('api/v1/tasks/start_fill_coords', RunTask.as_view()),
 ]

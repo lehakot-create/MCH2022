@@ -1,6 +1,7 @@
 from rest_framework import serializers
+from django.contrib.auth import get_user_model
 
-from .models import Company, Favourite, Profile
+from .models import Company, Favourite
 
 
 class RegionSerializer(serializers.Serializer):
@@ -51,14 +52,5 @@ class ProfileSerializer(serializers.ModelSerializer):
     user = serializers.StringRelatedField(read_only=True)
 
     class Meta:
-        model = Profile
+        model = get_user_model()
         fields = '__all__'
-
-
-from djoser.serializers import UserCreateSerializer as BaseUserRegistrationSerializer
-
-
-class UserRegistrationSerializer(BaseUserRegistrationSerializer):
-    user = serializers.StringRelatedField(read_only=True) #
-    class Meta(BaseUserRegistrationSerializer.Meta):
-        fields = ('id', 'email', 'username', 'last_name', 'password', 'user',)

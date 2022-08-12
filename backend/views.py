@@ -8,8 +8,10 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .serializers import CompanySerializer, RegionSerializer, LocalitySerializer, CategoriesSerializer, ProductsSerializer, FavouriteSerializer
-from .models import Company
+from .serializers import CompanySerializer, RegionSerializer, \
+    LocalitySerializer, CategoriesSerializer, ProductsSerializer, \
+    FavouriteSerializer, NewNewFavouriteSerializer
+from .models import Company, Favourite
 # from .tasks import start_fill_coords
 
 
@@ -101,11 +103,11 @@ class CategoriesListApiView(generics.ListAPIView):
     """
     queryset = Company.objects.values('Categories').distinct('Categories')
     serializer_class = CategoriesSerializer
-    # permission_classes = [IsAuthenticated]
 
     def list(self, request):
         categories_raw = self.get_queryset()
-        categories = self.remove_dublicate(key='Categories', data=categories_raw)
+        categories = self.remove_dublicate(key='Categories',
+                                           data=categories_raw)
         serializer = CategoriesSerializer(categories, many=True)
         return Response(serializer.data)
 
@@ -239,7 +241,8 @@ class FavouriteDetailApiView(APIView):
         try:
             data = request.data['favourite']
         except KeyError:
-            return JsonResponse({'error': 'неверно указан ключ. Необходим ключ favourite'})
+            return JsonResponse({
+                'error': 'неверно указан ключ. Необходим ключ favourite'})
 
         User = get_user_model()
         user = User.objects.get(id=request.user.id)
@@ -249,8 +252,11 @@ class FavouriteDetailApiView(APIView):
             except Company.DoesNotExist:
                 JsonResponse({'error': 'неверный id'})
 
-            if not Favourite.objects.filter(user=user, company=company).exists():
-                Favourite.objects.create(user=User.objects.get(id=request.user.id), company=company)
+            if not Favourite.objects.filter(user=user,
+                                            company=company).exists():
+                Favourite.objects.create(
+                    user=User.objects.get(
+                        id=request.user.id), company=company)
         return JsonResponse({'detail': 'ok'})
 
     def delete(self, request, **kwargs):
@@ -260,14 +266,17 @@ class FavouriteDetailApiView(APIView):
         try:
             data = request.data['favourite']
         except KeyError:
-            return JsonResponse({'error': 'неверно указан ключ. Необходим ключ favourite'})
+            return JsonResponse({
+                'error': 'неверно указан ключ. Необходим ключ favourite'
+            })
 
         User = get_user_model()
         user = User.objects.get(id=request.user.id)
         for _id in data:
             try:
                 company = Company.objects.get(id=_id)
-                favourite_company = Favourite.objects.get(user=user, company=company)
+                favourite_company = Favourite.objects.get(user=user,
+                                                          company=company)
                 favourite_company.delete()
             except Favourite.DoesNotExist:
                 return JsonResponse({'error': 'Компания не найдена'})
@@ -349,7 +358,6 @@ class QuantityApiList(APIView):
     """
     Возвращает количество компаний и продуктов в БД
     """
-    # permission_classes = [IsAuthenticated]
 
     def get(self, request):
         try:
