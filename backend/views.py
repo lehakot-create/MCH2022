@@ -1,4 +1,4 @@
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.core.cache import cache
 from django.db.models import Q
 from django.http import Http404, JsonResponse
@@ -214,6 +214,7 @@ class FavouriteDetailApiView(APIView):
     serializer_class = FavouriteSerializer
 
     def get(self, request):
+        User = get_user_model()
         user = User.objects.get(id=request.user.id)
         favourite_company = Favourite.objects.filter(user=user)
         data = []
@@ -240,6 +241,7 @@ class FavouriteDetailApiView(APIView):
         except KeyError:
             return JsonResponse({'error': 'неверно указан ключ. Необходим ключ favourite'})
 
+        User = get_user_model()
         user = User.objects.get(id=request.user.id)
         for _id in data:
             try:
@@ -260,6 +262,7 @@ class FavouriteDetailApiView(APIView):
         except KeyError:
             return JsonResponse({'error': 'неверно указан ключ. Необходим ключ favourite'})
 
+        User = get_user_model()
         user = User.objects.get(id=request.user.id)
         for _id in data:
             try:
@@ -281,7 +284,8 @@ class FindApiList(APIView):
     def get(self, request):
         data = request.GET
         try:
-            last = Profile.objects.get(user=request.user.id)
+            User = get_user_model()
+            last = User.objects.get(id=request.user.id)
             last.last_request = data
             last.save()
 
@@ -472,31 +476,6 @@ class CompaniesManufacturerViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return Company.objects.filter(is_moderate=False, user=self.request.user.id)
-
-
-class ProfileDetailView(generics.RetrieveUpdateDestroyAPIView):
-    """
-    Возвращает роль пользователя
-    """
-    permission_classes = [IsAuthenticated]
-    serializer_class = ProfileSerializer
-
-    def get(self, request, **kwargs):
-        try:
-            data = request.data['login']
-        except KeyError:
-            return JsonResponse({'error': 'Key is incorrect. "login" key required'})
-
-        try:
-            user = User.objects.get(username=data)
-        except User.DoesNotExist:
-            return JsonResponse({'error': 'User does not exist'})
-
-        if user.is_staff:
-            return JsonResponse({'role': 'moderator'})
-
-        role = Profile.objects.get(user_id=user.id).role
-        return JsonResponse({'role': role})
 
 
 class RunTask(APIView):

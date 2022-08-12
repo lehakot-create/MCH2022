@@ -22,9 +22,9 @@ from rest_framework.schemas import get_schema_view
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('backend.urls')),
-    path('api/v1/drf_auth/', include('rest_framework.urls')),
-    path('api/v1/auth/', include('djoser.urls')),
-    re_path(r'^auth/', include('djoser.urls.authtoken')),
+
+    #API registration
+    path('api/v2/', include('authentication.urls', namespace='authentication')),
 
 
     # API documentation

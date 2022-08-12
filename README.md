@@ -92,16 +92,45 @@ https://msh777.herokuapp.com/api/v1/analitics/directions/ - метод GET - в�
 https://msh777.herokuapp.com/api/v1/analitics/locality/ - метод GET - возвращает количество компаний в каждом городе (только 20 самых больших городов)
 
 
-http://127.0.0.1:8000/api/v1/auth/ - регистрация и аутентификация
 
-- про все эндпоинты инфа тут https://djoser.readthedocs.io/en/latest/base_endpoints.html
-- пример запроса регистрации - POST на http://127.0.0.1:8000/api/v1/auth/users/ username=user, password=password, 
-email=mail@mail.ru
-- пример логин на сайт - POST на http://127.0.0.1:8000/api/v1/auth/token/login/ username=user, password=password
-- - получаем значение токена "auth_token": "l3wg423l42345h235l2354hh2453l5" <- токен взят рандомный для примера
-- в запросах GET/POST/... где требуется аутентификация писать (ПРИМЕР) - "Token l3wg423l42345h235l2354hh2453l5"
+## Регистрация и авторизация
+## Регистрация
+https://msh777.herokuapp.com/api/v2/users/ - регистрация пользователя - метод POST
+В теле отправляешь:
+{
+    "user":{
+        "username": "user",
+        "email": "user@example.com",
+        "password": "passworduser"
+    }
+}
+Ответ сервера:
+{
+    "user": {
+        "email": "user2@example.com",
+        "username": "user2",
+        "role": "US",
+        "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6miwiZXhwIjoxNjYwMzUxOTg4fQ.spNA6JEWyF4onOnW47W8gC3IhUNo6dUsUbYDnFUfnP8"
+    }
+}
+Примечание: полученный токен нужно отправлять в каждом запросе в Headers - Authorization: Token eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6miwiZXhwIjoxNjYwMzUxOTg4fQ.spNA6JEWyF4onOnW47W8gC3IhUNo6dUsUbYDnFUfnP8
 
 
-
-###Запустить Redis в Docker-контейнере
-docker run -p 6379:6379 --name some-redis -d redis
+## Авторизация
+https://msh777.herokuapp.com/api/v2/users/login/ - авторизация пользователя - метод POST
+В теле отправляешь:
+{
+    "user":{
+        "email": "user@example.com",
+        "password": "passworduser"
+    }
+}
+Ответ сервера: 
+{
+    "user": {
+        "email": "user@example.com",
+        "username": "user",
+        "role": "US",
+        "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6MSwiZXhwIjoxNjYwMzUyMjcxfQ.SjrSBSZtrpt8tB84KZnnBe0Fns_Xt5nvGQ1XlIKVc50"
+    }
+}

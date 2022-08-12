@@ -39,8 +39,6 @@ urlpatterns = [
 
     path('api/v1/', include(router.urls)),
 
-    path('api/v1/profile/', ProfileDetailView.as_view()),
-
     #URL for run tasks
     path('api/v1/tasks/start_fill_coords', RunTask.as_view()),
 ]
