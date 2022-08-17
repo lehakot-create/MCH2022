@@ -4,22 +4,6 @@ from django.db import models
 from django.conf import settings
 
 
-# class Profile(models.Model):
-#     user = 'US'
-#     manufacturer = 'MA'
-#     choice = [
-#         (user, 'Пользователь'),
-#         (manufacturer, 'Производитель'),
-#     ]
-#     role = models.CharField(max_length=2, choices=choice, default=user)
-#     user = models.OneToOneField(settings.AUTH_USER_MODEL,
-#                                 on_delete=models.CASCADE)
-#     last_request = models.JSONField(null=True)
-#
-#     def __str__(self):
-#         return f'{self.user}'
-
-
 class ProfileCompany(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL,
                                 on_delete=models.CASCADE)

@@ -121,14 +121,13 @@ https://msh777.herokuapp.com/api/v2/users/login/ - авторизация пол
 В теле отправляешь:
 {
     "user":{
-        "email": "user@example.com",
+        "username": "user",
         "password": "passworduser"
     }
 }
 Ответ сервера: 
 {
     "user": {
-        "email": "user@example.com",
         "username": "user",
         "role": "US",
         "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6MSwiZXhwIjoxNjYwMzUyMjcxfQ.SjrSBSZtrpt8tB84KZnnBe0Fns_Xt5nvGQ1XlIKVc50"
