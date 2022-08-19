@@ -1,4 +1,4 @@
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.core.cache import cache
 from django.db.models import Q
 from django.http import Http404, JsonResponse
@@ -8,8 +8,10 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .serializers import *
-from .models import *
+from .serializers import CompanySerializer, RegionSerializer, \
+    LocalitySerializer, CategoriesSerializer, ProductsSerializer, \
+    FavouriteSerializer, NewNewFavouriteSerializer
+from .models import Company, Favourite
 # from .tasks import start_fill_coords
 
 
@@ -101,11 +103,11 @@ class CategoriesListApiView(generics.ListAPIView):
     """
     queryset = Company.objects.values('Categories').distinct('Categories')
     serializer_class = CategoriesSerializer
-    # permission_classes = [IsAuthenticated]
 
     def list(self, request):
         categories_raw = self.get_queryset()
-        categories = self.remove_dublicate(key='Categories', data=categories_raw)
+        categories = self.remove_dublicate(key='Categories',
+                                           data=categories_raw)
         serializer = CategoriesSerializer(categories, many=True)
         return Response(serializer.data)
 
@@ -214,6 +216,7 @@ class FavouriteDetailApiView(APIView):
     serializer_class = FavouriteSerializer
 
     def get(self, request):
+        User = get_user_model()
         user = User.objects.get(id=request.user.id)
         favourite_company = Favourite.objects.filter(user=user)
         data = []
@@ -238,17 +241,22 @@ class FavouriteDetailApiView(APIView):
         try:
             data = request.data['favourite']
         except KeyError:
-            return JsonResponse({'error': 'неверно указан ключ. Необходим ключ favourite'})
+            return JsonResponse({
+                'error': 'неверно указан ключ. Необходим ключ favourite'})
 
+        User = get_user_model()
         user = User.objects.get(id=request.user.id)
         for _id in data:
             try:
                 company = Company.objects.get(id=_id)
             except Company.DoesNotExist:
-                JsonResponse({'error': 'неверный id'})
+                return JsonResponse({'error': 'неверный id'})
 
-            if not Favourite.objects.filter(user=user, company=company).exists():
-                Favourite.objects.create(user=User.objects.get(id=request.user.id), company=company)
+            if not Favourite.objects.filter(user=user,
+                                            company=company).exists():
+                Favourite.objects.create(
+                    user=User.objects.get(
+                        id=request.user.id), company=company)
         return JsonResponse({'detail': 'ok'})
 
     def delete(self, request, **kwargs):
@@ -258,13 +266,17 @@ class FavouriteDetailApiView(APIView):
         try:
             data = request.data['favourite']
         except KeyError:
-            return JsonResponse({'error': 'неверно указан ключ. Необходим ключ favourite'})
+            return JsonResponse({
+                'error': 'неверно указан ключ. Необходим ключ favourite'
+            })
 
+        User = get_user_model()
         user = User.objects.get(id=request.user.id)
         for _id in data:
             try:
                 company = Company.objects.get(id=_id)
-                favourite_company = Favourite.objects.get(user=user, company=company)
+                favourite_company = Favourite.objects.get(user=user,
+                                                          company=company)
                 favourite_company.delete()
             except Favourite.DoesNotExist:
                 return JsonResponse({'error': 'Компания не найдена'})
@@ -281,7 +293,8 @@ class FindApiList(APIView):
     def get(self, request):
         data = request.GET
         try:
-            last = Profile.objects.get(user=request.user.id)
+            User = get_user_model()
+            last = User.objects.get(id=request.user.id)
             last.last_request = data
             last.save()
 
@@ -301,7 +314,7 @@ class FindApiList(APIView):
                 )
             serializer = CompanySerializer(company, many=True)
             return Response(serializer.data)
-        except Company.DoesNotExist or Profile.DoesNotExist:
+        except Company.DoesNotExist or User.DoesNotExist:
             raise Http404
 
 
@@ -314,7 +327,8 @@ class LastApiList(APIView):
 
     def get(self, request):
         try:
-            last = Profile.objects.get(user=request.user.id)
+            User = get_user_model()
+            last = User.objects.get(id=request.user.id)
             find = last.last_request['find']
             if find.isdigit() and len(find) == 10:
                 company = Company.objects.filter(INN=find)
@@ -333,23 +347,25 @@ class LastApiList(APIView):
             return Response(serializer.data)
         except Company.DoesNotExist:
             return JsonResponse({'error': 'ошибка компаний'})
-        except Profile.DoesNotExist:
+        except User.DoesNotExist:
             return JsonResponse({'error': 'нет последних запросов'})
         except AttributeError:
-            return Response({'error': 'Последних запросов нет'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': 'Последних запросов нет'},
+                            status=status.HTTP_400_BAD_REQUEST)
 
 
 class QuantityApiList(APIView):
     """
     Возвращает количество компаний и продуктов в БД
     """
-    # permission_classes = [IsAuthenticated]
 
     def get(self, request):
         try:
             qty_company = Company.objects.all().count()
-            qty_product_raw = Company.objects.values('Products').distinct('Products')
-            qty_product = len(self.remove_dublicate(key='Products', data=qty_product_raw))
+            qty_product_raw = \
+                Company.objects.values('Products').distinct('Products')
+            qty_product = len(self.remove_dublicate(key='Products',
+                                                    data=qty_product_raw))
             return Response({'qty_company': qty_company,
                              'qty_product': qty_product})
         except Company.DoesNotExist:
@@ -373,7 +389,8 @@ class QuantityApiList(APIView):
 
 class AnaliticsQuantityCompanyApiView(APIView):
     """
-    Самые популярные категории - возвращает количество компаний в каждой категории
+    Самые популярные категории - возвращает количество
+    компаний в каждой категории
     """
     permission_classes = [IsAuthenticated]
 
@@ -387,7 +404,9 @@ class AnaliticsQuantityCompanyApiView(APIView):
                     if company.Categories:
                         for el in company.Categories:
                             dct[el] = dct.get(el, 0) + 1
-                sorted_tuples = sorted(dct.items(), key=lambda item: item[1], reverse=True)[:20]
+                sorted_tuples = sorted(dct.items(),
+                                       key=lambda item: item[1],
+                                       reverse=True)[:20]
                 sorted_dct = {key: value for key, value in sorted_tuples}
                 cache.set('analitics_categories', sorted_dct)
             return JsonResponse(sorted_dct)
@@ -397,7 +416,8 @@ class AnaliticsQuantityCompanyApiView(APIView):
 
 class AnaliticsQuantityDirectionApiView(APIView):
     """
-    Самые популярные направления(direction) - возвращает количество компаний по каждому направлению
+    Самые популярные направления(direction) - возвращает количество
+    компаний по каждому направлению
     """
     permission_classes = [IsAuthenticated]
 
@@ -408,8 +428,11 @@ class AnaliticsQuantityDirectionApiView(APIView):
                 dct = {}
                 all_direction = Company.objects.all()
                 for direction in all_direction:
-                    dct[direction.Direction] = dct.get(direction.Direction, 0) + 1
-                sorted_tuple = sorted(dct.items(), key=lambda item: item[1], reverse=True)[:20]
+                    dct[direction.Direction] = \
+                        dct.get(direction.Direction, 0) + 1
+                sorted_tuple = sorted(dct.items(),
+                                      key=lambda item: item[1],
+                                      reverse=True)[:20]
                 sorted_dct = {key: value for key, value in sorted_tuple}
                 cache.set('analitics_directions', sorted_dct)
             return JsonResponse(sorted_dct)
@@ -431,7 +454,9 @@ class AnaliticsQuantityLocalityApiView(APIView):
                 all_locality = Company.objects.all()
                 for locality in all_locality:
                     dct[locality.Locality] = dct.get(locality.Locality, 0) + 1
-                sorted_tuple = sorted(dct.items(), key=lambda item: item[1], reverse=True)[:20]
+                sorted_tuple = sorted(dct.items(),
+                                      key=lambda item: item[1],
+                                      reverse=True)[:20]
                 sorted_dct = {key: value for key, value in sorted_tuple}
                 cache.set('analitics_locality', sorted_dct)
             return JsonResponse(sorted_dct)
@@ -471,32 +496,8 @@ class CompaniesManufacturerViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return Company.objects.filter(is_moderate=False, user=self.request.user.id)
-
-
-class ProfileDetailView(generics.RetrieveUpdateDestroyAPIView):
-    """
-    Возвращает роль пользователя
-    """
-    permission_classes = [IsAuthenticated]
-    serializer_class = ProfileSerializer
-
-    def get(self, request, **kwargs):
-        try:
-            data = request.data['login']
-        except KeyError:
-            return JsonResponse({'error': 'Key is incorrect. "login" key required'})
-
-        try:
-            user = User.objects.get(username=data)
-        except User.DoesNotExist:
-            return JsonResponse({'error': 'User does not exist'})
-
-        if user.is_staff:
-            return JsonResponse({'role': 'moderator'})
-
-        role = Profile.objects.get(user_id=user.id).role
-        return JsonResponse({'role': role})
+        return Company.objects.filter(is_moderate=False,
+                                      user=self.request.user.id)
 
 
 class RunTask(APIView):

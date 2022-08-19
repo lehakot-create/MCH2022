@@ -52,11 +52,12 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.sites',
     'backend',
+    'authentication',
     'rest_framework',
     'corsheaders',
     'django_filters',
     'rest_framework.authtoken',
-    'djoser',
+    # 'djoser',
     'django_celery_results',
     'django_celery_beat',
 ]
@@ -154,10 +155,13 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.BasicAuthentication',
-        'rest_framework.authentication.TokenAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
+        'authentication.backends.JWTAuthentication',
+        # 'rest_framework.authentication.BasicAuthentication',
+        # 'rest_framework.authentication.TokenAuthentication',
+        # 'rest_framework.authentication.SessionAuthentication',
     ],
+    'EXCEPTION_HANDLER': 'prj.exceptions.core_exception_handler',
+    'NON_FIELD_ERRORS_KEY': 'error',
 }
 
 CORS_ORIGIN_ALLOW_ALL = True
@@ -205,8 +209,6 @@ CACHES = {
     }
 }
 
-DJOSER = {
-    'SERIALIZERS': {
-        'user_create': 'backend.serializers.UserRegistrationSerializer'
-    }
-}
+AUTH_USER_MODEL = 'authentication.User'
+
+TOKEN_VALIDITY_PERIOD_HOURS = 12

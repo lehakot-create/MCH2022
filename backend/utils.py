@@ -18,12 +18,13 @@ def app(address):
     params = {'apikey': API_KEY,
               'format': 'json',
               'geocode': address}
-    req = requests.get(f'https://geocode-maps.yandex.ru/1.x/', params=params)
+    req = requests.get('https://geocode-maps.yandex.ru/1.x/', params=params)
     if req.status_code == '403':
         print(req.text)
         return {'err_code': 403, 'err_detail': address}
     else:
-        coords = req.json()['response']['GeoObjectCollection']['featureMember'][0]['GeoObject']['Point']['pos']
+        coords = req.json()['response']['GeoObjectCollection']
+        ['featureMember'][0]['GeoObject']['Point']['pos']
         return tuple(coords.split(' '))
 
 
