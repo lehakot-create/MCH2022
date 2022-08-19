@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from .models import Company, Favourite
+
+from .models import Company, Favourite, Profile
 
 
 class RegionSerializer(serializers.Serializer):
@@ -44,3 +45,20 @@ class CompanySerializer(serializers.ModelSerializer):
     class Meta:
         model = Company
         fields = '__all__'
+
+
+class ProfileSerializer(serializers.ModelSerializer):
+    user = serializers.StringRelatedField(read_only=True)
+
+    class Meta:
+        model = Profile
+        fields = '__all__'
+
+
+from djoser.serializers import UserCreateSerializer as BaseUserRegistrationSerializer
+
+
+class UserRegistrationSerializer(BaseUserRegistrationSerializer):
+    user = serializers.StringRelatedField(read_only=True) #
+    class Meta(BaseUserRegistrationSerializer.Meta):
+        fields = ('id', 'email', 'username', 'last_name', 'password', 'user',)

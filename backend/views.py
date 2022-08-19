@@ -1,17 +1,16 @@
 from django.contrib.auth.models import User
 from django.core.cache import cache
-from django.db.models import Q, Count
+from django.db.models import Q
 from django.http import Http404, JsonResponse
 
 from rest_framework import generics, status, viewsets
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.decorators import api_view
 
-from .models import Company, Product, Favourite, Profile
 from .serializers import *
-# from .utils import day_of_month
+from .models import *
+# from .tasks import start_fill_coords
 
 
 class RegionListApiView(generics.ListAPIView):
@@ -441,9 +440,9 @@ class AnaliticsQuantityLocalityApiView(APIView):
 
 
 class CompaniesAdminViewSet(viewsets.ModelViewSet):
-    '''
+    """
     Список компаний для модератора
-    '''
+    """
 
     serializer_class = CompanySerializer
     permission_classes = [IsAdminUser]
@@ -453,9 +452,9 @@ class CompaniesAdminViewSet(viewsets.ModelViewSet):
 
 
 class CompaniesUserViewSet(viewsets.ReadOnlyModelViewSet):
-    '''
+    """
     Список компаний для всех
-    '''
+    """
 
     serializer_class = CompanySerializer
 
@@ -464,9 +463,9 @@ class CompaniesUserViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class CompaniesManufacturerViewSet(viewsets.ModelViewSet):
-    '''
+    """
     Список компаний для их владельца
-    '''
+    """
 
     serializer_class = CompanySerializer
     permission_classes = [IsAuthenticated]
@@ -475,10 +474,37 @@ class CompaniesManufacturerViewSet(viewsets.ModelViewSet):
         return Company.objects.filter(is_moderate=False, user=self.request.user.id)
 
 
-# @api_view(['GET', 'POST'])
-# def set_parser_days(request, day_number):
-#     try:
-#         if 0 < day_number < 32:
-#             return Response(day_number, status=status.HTTP_200_OK)
-#     except:
-#         raise ValueError
+class ProfileDetailView(generics.RetrieveUpdateDestroyAPIView):
+    """
+    Возвращает роль пользователя
+    """
+    permission_classes = [IsAuthenticated]
+    serializer_class = ProfileSerializer
+
+    def get(self, request, **kwargs):
+        try:
+            data = request.data['login']
+        except KeyError:
+            return JsonResponse({'error': 'Key is incorrect. "login" key required'})
+
+        try:
+            user = User.objects.get(username=data)
+        except User.DoesNotExist:
+            return JsonResponse({'error': 'User does not exist'})
+
+        if user.is_staff:
+            return JsonResponse({'role': 'moderator'})
+
+        role = Profile.objects.get(user_id=user.id).role
+        return JsonResponse({'role': role})
+
+
+class RunTask(APIView):
+    pass
+
+    # def get(self, request):
+    #     try:
+    #         result = start_fill_coords.delay()
+    #         return JsonResponse({'result': result.id})
+    #     except:
+    #         return JsonResponse({'error': 'error'})

@@ -1,5 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
+
 from .views import *
 
 router = DefaultRouter()
@@ -37,4 +38,9 @@ urlpatterns = [
     path('api/v1/analitics/locality/', AnaliticsQuantityLocalityApiView.as_view()),
 
     path('api/v1/', include(router.urls)),
+
+    path('api/v1/profile/', ProfileDetailView.as_view()),
+
+    #URL for run tasks
+    path('api/v1/tasks/start_fill_coords', RunTask.as_view()),
 ]

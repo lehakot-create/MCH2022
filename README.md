@@ -72,6 +72,11 @@ https://msh777.herokuapp.com/api/v1/favourite/ - метод DELETE удалит 
     "favourite": [5, 4]
 }
 
+https://msh777.herokuapp.com/api/v1/profile/ - метод GET вернет роль для данного пользователя.
+Список указывать в теле запроса: {
+    "login": "user"
+}
+
 https://msh777.herokuapp.com/api/v1/find/ - метод GET - возвращает результаты поиска по полям: если введен ИНН, то ищет по полю ИНН,
 если что-то другое - то ищет по полям компания, категория, продукт, регион, город, адрес. 
 Пример https://msh777.herokuapp.com/api/v1/find/?find=Корсарус

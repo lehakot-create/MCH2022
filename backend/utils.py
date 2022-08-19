@@ -12,6 +12,9 @@ API_KEY = os.environ.get('YANDEX_GEOCODER_API_KEY')
 
 
 def app(address):
+    """
+    Добавляет координаты по адресу в компанию
+    """
     params = {'apikey': API_KEY,
               'format': 'json',
               'geocode': address}
