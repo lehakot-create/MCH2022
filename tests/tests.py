@@ -6,7 +6,7 @@ from api import RegisterUser
 
 URL = 'http://127.0.0.1:8000'
 fake = Faker()
-logger = logging.getLogger('api')
+logger = logging.getLogger('tests')
 reg_user = RegisterUser()
 
 
@@ -130,6 +130,80 @@ class TestApi:
         token = reg_user.login_user(url=f'{URL}', body=self.body)
         headers = {'Authorization': f'Token {token}'}
         response = requests.get(url=f'{URL}/api/v1/api_id/1/',
+                                headers=headers)
+        logger.info(response.text)
+        assert response.status_code == 200
+
+    def test_api_get_favourite(self):
+        token = reg_user.login_user(url=f'{URL}', body=self.body)
+        headers = {'Authorization': f'Token {token}'}
+        response = requests.get(url=f'{URL}/api/v1/favourite/',
+                                headers=headers)
+        logger.info(response.text)
+        assert response.status_code == 200
+
+    def test_api_post_favourite(self):
+        token = reg_user.login_user(url=f'{URL}', body=self.body)
+        headers = {'Authorization': f'Token {token}'}
+        data = {"favourite": [1, 2]}
+        response = requests.post(url=f'{URL}/api/v1/favourite/',
+                                headers=headers, json=data)
+        logger.info(response.text)
+        assert response.status_code == 200
+
+    def test_api_delete_favourite(self):
+        token = reg_user.login_user(url=f'{URL}', body=self.body)
+        headers = {'Authorization': f'Token {token}'}
+        data = {"favourite": [1]}
+        response = requests.delete(url=f'{URL}/api/v1/favourite/',
+                                 headers=headers, json=data)
+        logger.info(response.text)
+        assert response.status_code == 200
+
+    def test_api_find(self):
+        token = reg_user.login_user(url=f'{URL}', body=self.body)
+        headers = {'Authorization': f'Token {token}'}
+        response = requests.get(url=f'{URL}/api/v1/find/?find=корсарус',
+                                   headers=headers)
+        logger.info(response.text)
+        assert response.status_code == 200
+
+    def test_api_last(self):
+        token = reg_user.login_user(url=f'{URL}', body=self.body)
+        headers = {'Authorization': f'Token {token}'}
+        response = requests.get(url=f'{URL}/api/v1/last/',
+                                headers=headers)
+        logger.info(response.text)
+        assert response.status_code == 200
+
+    def test_api_quantity(self):
+        token = reg_user.login_user(url=f'{URL}', body=self.body)
+        headers = {'Authorization': f'Token {token}'}
+        response = requests.get(url=f'{URL}/api/v1/last/',
+                                headers=headers)
+        logger.info(response.text)
+        assert response.status_code == 200
+
+    def test_api_analitics_categories(self):
+        token = reg_user.login_user(url=f'{URL}', body=self.body)
+        headers = {'Authorization': f'Token {token}'}
+        response = requests.get(url=f'{URL}/api/v1/analitics/categories/',
+                                headers=headers)
+        logger.info(response.text)
+        assert response.status_code == 200
+
+    def test_api_analitics_directions(self):
+        token = reg_user.login_user(url=f'{URL}', body=self.body)
+        headers = {'Authorization': f'Token {token}'}
+        response = requests.get(url=f'{URL}/api/v1/analitics/directions/',
+                                headers=headers)
+        logger.info(response.text)
+        assert response.status_code == 200
+
+    def test_api_analitics_locality(self):
+        token = reg_user.login_user(url=f'{URL}', body=self.body)
+        headers = {'Authorization': f'Token {token}'}
+        response = requests.get(url=f'{URL}/api/v1/analitics/locality/',
                                 headers=headers)
         logger.info(response.text)
         assert response.status_code == 200

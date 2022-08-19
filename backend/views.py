@@ -250,7 +250,7 @@ class FavouriteDetailApiView(APIView):
             try:
                 company = Company.objects.get(id=_id)
             except Company.DoesNotExist:
-                JsonResponse({'error': 'неверный id'})
+                return JsonResponse({'error': 'неверный id'})
 
             if not Favourite.objects.filter(user=user,
                                             company=company).exists():
