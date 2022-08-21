@@ -1,20 +1,37 @@
-import requests
 from bs4 import BeautifulSoup
+import logging
+from datetime import datetime
+import asyncio
+import aiohttp
+
+Log_Format = "%(levelname)s %(asctime)s - %(message)s"
+logging.basicConfig(filename="logfile.log",
+                    filemode="w",
+                    format=Log_Format,
+                    level=logging.INFO
+                    )
+logger = logging.getLogger()
+
+URL = 'https://xn--b1aedfedwrdfl5a6k.xn--p1ai/producers?region=23077&page='
+
+persons_url_list = []
 
 
-def url_parse(page, output_file):
+async def url_parse(session: object, url: str):
+    """
+    Получает страницу с сайта производитель.рф и возвращает с неё все адреса страниц производителей
+    :param session:
+    :param url: получаем адрес страницы
+    :return: возвращаем список с адресами страниц производителей на сайте производитель.рф
+    """
+    logger.info(f'Делаю запрос на страницу {url}')
 
-    ''' В аргументах указать кол-во страниц каталога компаний(226 сейчас),  название txt файла на выходе с данными'''
+    async with session.get(url=url) as response:
+        html_page = await response.text()
 
-    persons_url_list = []
+        logger.info(f'Запрос получен')
 
-    for i in range(0, page):
-        url = f'https://xn--b1aedfedwrdfl5a6k.xn--p1ai/producers?region=23077&page={i}'
-
-        q = requests.get(url)
-        result = q.content
-
-        soup = BeautifulSoup(result, 'lxml')
+        soup = BeautifulSoup(html_page, 'lxml')
         persons1 = soup.find_all(class_='manufacturers-card-img')
         persons2 = soup.find_all(class_='manufacturers-card-img-3')
 
@@ -22,17 +39,48 @@ def url_parse(page, output_file):
             person_page_url = person.get('href')
             persons_url_list.append('https://xn--b1aedfedwrdfl5a6k.xn--p1ai' + person_page_url)
 
-            print(f'Пройдена страница {i}, {person_page_url}')
-
         for person in persons2:
             person_page_url = person.get('href')
             persons_url_list.append('https://xn--b1aedfedwrdfl5a6k.xn--p1ai' + person_page_url)
 
-            print(f'Пройдена страница {i}, {person_page_url}')
+        logger.info(f'Пройдена страница {url}')
 
-    with open(output_file, 'a') as file:
+
+async def create_tasks(page: int):
+    """
+    Создает задачи для парсинга
+    :param page: количество страниц с карточками производителей на сайте производитель.рф
+    :return:
+    """
+    connector = aiohttp.TCPConnector(limit_per_host=10)  # ограничиваем количество соединений
+    async with aiohttp.ClientSession(connector=connector) as session:
+
+        tasks = []
+
+        for i in range(0, page):
+            url = f'{URL}{i}'
+
+            task = asyncio.create_task(url_parse(session, url))
+            tasks.append(task)
+        await asyncio.gather(*tasks)
+
+
+def main():
+    """
+    Запускает процесс формирования задач, и записывает результат работы в файл
+    :return:
+    """
+    dt0 = datetime.now()
+
+    asyncio.run(create_tasks(2))
+
+    with open('urls_moscow.txt', 'w') as file:
         for line in persons_url_list:
             file.write(f'{line}\n')
 
+    dt1 = datetime.now()
+    logger.info(f'Время выполнения {dt1 - dt0}')
 
-# url_parse(486, 'urls_moscow.txt')
+
+if __name__ == '__main__':
+    main()

@@ -9,7 +9,7 @@ import os
 
 def producers_parse(producers_txt):
 
-    ''' В аргументе функции указать txt файл со ссылками профилей компаний для парсинга '''
+    """ В аргументе функции указать txt файл со ссылками профилей компаний для парсинга """
 
     with open(producers_txt, encoding='utf-8') as file:
 
