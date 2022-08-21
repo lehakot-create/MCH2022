@@ -72,7 +72,7 @@ def main():
     """
     dt0 = datetime.now()
 
-    asyncio.run(create_tasks(2))
+    asyncio.run(create_tasks(226))
 
     with open('urls_moscow.txt', 'w') as file:
         for line in persons_url_list:
