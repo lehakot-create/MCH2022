@@ -1,16 +1,26 @@
 from random import randint
 from time import sleep
+from datetime import datetime
 
 import requests
 from bs4 import BeautifulSoup
 import json
 import os
+import logging
+
+Log_Format = "%(levelname)s %(asctime)s - %(message)s"
+logging.basicConfig(filename="logfile_producers.log",
+                    filemode="w",
+                    format=Log_Format,
+                    level=logging.INFO
+                    )
+logger = logging.getLogger()
 
 
 def producers_parse(producers_txt):
 
     """ В аргументе функции указать txt файл со ссылками профилей компаний для парсинга """
-
+    dt0 = datetime.now()
     with open(producers_txt, encoding='utf-8') as file:
 
         lines = [line.strip() for line in file.readlines()]
@@ -19,8 +29,13 @@ def producers_parse(producers_txt):
         count = 0
 
         for line in lines:
+
+            logger.info(f'Делаю запрос на страницу {line}')
+
             q = requests.get(line)
             result = q.content
+
+            logger.info(f'Запрос получен')
 
             soup = BeautifulSoup(result, 'lxml')
 
@@ -151,12 +166,18 @@ def producers_parse(producers_txt):
 
             data_dict.append(data)
 
-            sleep(randint(2, 5))
+            logger.info(f'Получены данные со страницы')
+
+            # sleep(randint(2, 5))
 
         with open('data_moscow_full.json', 'w') as json_file:
             json.dump(data_dict, json_file, indent=4, ensure_ascii=False)
 
+        dt1 = datetime.now()
+        logger.info(f'Время выполнения {dt1 - dt0}')
+
         return f'Найдено {count} компания(и)'
 
 
-# producers_parse('urls_moscow.txt')
+if __name__ == '__main__':
+    producers_parse('urls_moscow.txt')

@@ -4,3 +4,8 @@ __pycache__/
 .env
 
 Cache_files/*
+
+parser/data_moscow_full.json
+parser/logfile.log
+parser/logfile_producers.log
+parser/urls_moscow.txt
