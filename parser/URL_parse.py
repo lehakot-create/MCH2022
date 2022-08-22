@@ -4,8 +4,7 @@ from datetime import datetime
 import asyncio
 import aiohttp
 import redis
-import psycopg2
-from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
+
 
 Log_Format = "%(levelname)s %(asctime)s - %(message)s"
 logging.basicConfig(filename="logfile.log",
