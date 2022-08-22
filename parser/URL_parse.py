@@ -17,19 +17,6 @@ logger = logging.getLogger()
 
 r = redis.Redis()
 
-# conn = psycopg2.connect(dbname='postgres',
-#                         user='postgres',
-#                         password='postgres',
-#                         host='0.0.0.0',
-#                         port='5432')
-# conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
-# cursor = conn.cursor()
-# create_table_query = '''CREATE TABLE URLs
-#                           (ID INT PRIMARY KEY     NOT NULL,
-#                           url           TEXT    NOT NULL); '''
-# cursor.execute(create_table_query)
-# conn.commit()
-
 URL = 'https://xn--b1aedfedwrdfl5a6k.xn--p1ai/producers?region=23077&page='
 
 persons_url_list = []
@@ -82,20 +69,6 @@ async def create_tasks(page: int):
         await asyncio.gather(*tasks)
 
 
-# def write_to_file():
-#     """
-#     Пишет данные в файл
-#     :param persons_url_list:  список данных
-#     :return:
-#     """
-#     dt0_write_file = datetime.now()
-#     with open('urls_moscow.txt', 'w') as file:
-#         for line in persons_url_list:
-#             file.write(f'{line}\n')
-#     dt1_write_file = datetime.now()
-#     logger.info(f'Время записи в файл {dt1_write_file - dt0_write_file}')
-
-
 def write_to_redis():
     """
     Пишем данные в Редис
@@ -110,16 +83,6 @@ def write_to_redis():
     logger.info(f'Время записи в Redis {dt1-dt0}')
 
 
-# def write_to_postgres():
-#     dt0 = datetime.now()
-#     for i, url in enumerate(persons_url_list):
-#         insert_query = """ INSERT INTO URLs (ID, url) VALUES (%s, %s)"""
-#         cursor.execute(insert_query, (i, url))
-#         conn.commit()
-#     dt1 = datetime.now()
-#     logger.info(f'Время записи в Postgres {dt1 - dt0}')
-
-
 def main():
     """
     Запускает процесс формирования задач, и записывает результат работы в файл
@@ -129,15 +92,7 @@ def main():
 
     asyncio.run(create_tasks(226))
 
-    # write_to_file()
     write_to_redis()
-    # write_to_postgres()
-    # dt0_write_file = datetime.now()
-    # with open('urls_moscow.txt', 'w') as file:
-    #     for line in persons_url_list:
-    #         file.write(f'{line}\n')
-    # dt1_write_file = datetime.now()
-    # logger.info(f'Время записи в файл {dt1_write_file - dt0_write_file}')
 
     dt1 = datetime.now()
     logger.info(f'Время выполнения {dt1 - dt0}')
@@ -145,6 +100,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-    # write_redis()
-    # print(r.get('1'))
-
