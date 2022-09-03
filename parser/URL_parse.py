@@ -4,6 +4,7 @@ from datetime import datetime
 import asyncio
 import aiohttp
 import redis
+import json
 
 
 Log_Format = "%(levelname)s %(asctime)s - %(message)s"
@@ -19,6 +20,16 @@ r = redis.Redis()
 URL = 'https://xn--b1aedfedwrdfl5a6k.xn--p1ai/producers?region=23077&page='
 
 persons_url_list = []
+
+
+def id_generator():
+    count = 0
+    while True:
+        count += 1
+        yield count
+
+
+id_gen = id_generator()
 
 
 async def url_parse(session: object, url: str):
@@ -41,12 +52,13 @@ async def url_parse(session: object, url: str):
 
         for person in persons1:
             person_page_url = person.get('href')
-            persons_url_list.append('https://xn--b1aedfedwrdfl5a6k.xn--p1ai' + person_page_url)
+            manufacturer_url = 'https://xn--b1aedfedwrdfl5a6k.xn--p1ai' + person_page_url
 
         for person in persons2:
             person_page_url = person.get('href')
-            persons_url_list.append('https://xn--b1aedfedwrdfl5a6k.xn--p1ai' + person_page_url)
+            manufacturer_url = 'https://xn--b1aedfedwrdfl5a6k.xn--p1ai' + person_page_url
 
+        write_to_redis(manufacturer_url)
         logger.info(f'Пройдена страница {url}')
 
 
@@ -68,18 +80,17 @@ async def create_tasks(page: int):
         await asyncio.gather(*tasks)
 
 
-def write_to_redis():
+def write_to_redis(url: str):
     """
     Пишем данные в Редис
     :return:
     """
-    dt0 = datetime.now()
+    id = next(id_gen)
 
-    for i, url in enumerate(persons_url_list):
-        r.set(i, url)
-
-    dt1 = datetime.now()
-    logger.info(f'Время записи в Redis {dt1-dt0}')
+    record = {'url': url,
+          'processed': 'false'}
+    rval = json.dumps(record)
+    r.set(str(id), rval)
 
 
 def main():
@@ -89,9 +100,9 @@ def main():
     """
     dt0 = datetime.now()
 
-    asyncio.run(create_tasks(226))
+    asyncio.run(create_tasks(3))
 
-    write_to_redis()
+    # write_to_redis()
 
     dt1 = datetime.now()
     logger.info(f'Время выполнения {dt1 - dt0}')

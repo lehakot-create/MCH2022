@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'backend',
     'authentication',
+    'parser',
     'rest_framework',
     'corsheaders',
     'django_filters',
