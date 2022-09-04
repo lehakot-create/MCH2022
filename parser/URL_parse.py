@@ -6,7 +6,6 @@ import aiohttp
 import redis
 import json
 
-
 Log_Format = "%(levelname)s %(asctime)s - %(message)s"
 logging.basicConfig(filename="logfile.log",
                     filemode="w",
@@ -88,21 +87,21 @@ def write_to_redis(url: str):
     id = next(id_gen)
 
     record = {'url': url,
-          'processed': 'false'}
+              'processed': 'false'}
     rval = json.dumps(record)
     r.set(str(id), rval)
+    r.incr('count')
 
 
 def main():
     """
-    Запускает процесс формирования задач, и записывает результат работы в файл
+    Запускает процесс формирования задач
     :return:
     """
     dt0 = datetime.now()
+    r.set('count', 0)  # счетчик количества записей
 
-    asyncio.run(create_tasks(3))
-
-    # write_to_redis()
+    asyncio.run(create_tasks(10))
 
     dt1 = datetime.now()
     logger.info(f'Время выполнения {dt1 - dt0}')
@@ -110,3 +109,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+

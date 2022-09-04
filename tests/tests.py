@@ -102,7 +102,7 @@ class TestApi:
         logger.info(response.text)
         assert response.status_code == 200
 
-    def test_api_categories(self):
+    def test_api_category(self):
         token = reg_user.login_user(url=f'{URL}', body=self.body)
         headers = {'Authorization': f'Token {token}'}
         response = requests.get(url=f'{URL}/api/v1/category/Автобусы/',
